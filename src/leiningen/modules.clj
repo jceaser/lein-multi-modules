@@ -194,7 +194,8 @@
                    (println " Building" (:name project) (:version project) (dump-profiles args))
                    (println "------------------------------------------------------------------------"))
                  (if-let [cmd (get-in project [:modules :subprocess] subprocess)]
-                   (binding [eval/*dir* (:root project)]
+                   (binding [eval/*dir* (:root project)
+                             eval/*env* (with-meta (dissoc (into {} (System/getenv)) "CLASSPATH") {:replace true})]
                      (let [exit-code (apply eval/sh (cons cmd args))]
                        (when (pos? exit-code)
                          (throw (ex-info "Subprocess failed" {:exit-code exit-code})))))
